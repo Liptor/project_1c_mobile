@@ -5,8 +5,7 @@
  * @format
  */
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import { StatusBar, Text, FlatList, StyleSheet, useColorScheme, View } from 'react-native';
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
@@ -28,11 +27,12 @@ function AppContent() {
 
   return (
     <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
+      <View style={styles.containerTitle}>
+        <Text style={styles.title}>Список номенклатуры</Text>
+      </View>
+      <FlatList data={[{name: "Номенклатура", title: "Новая номеклатура"}]} />
     </View>
+
   );
 }
 
@@ -40,6 +40,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  containerTitle: {
+    flex: 1,
+    alignItems: "center",
+    paddingTop: 52,
+  },
+  title: {
+    fontSize: 23,
+    fontWeight: "bold"
+  }
 });
+
 
 export default App;
