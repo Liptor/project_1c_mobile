@@ -7,8 +7,7 @@
 
 import { StatusBar, Text, FlatList, StyleSheet, useColorScheme, View } from 'react-native';
 import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
+  SafeAreaProvider
 } from 'react-native-safe-area-context';
 
 function App() {
@@ -23,14 +22,13 @@ function App() {
 }
 
 function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
 
   return (
     <View style={styles.container}>
       <View style={styles.containerTitle}>
         <Text style={styles.title}>Список номенклатуры</Text>
       </View>
-      <FlatList data={[{name: "Номенклатура", title: "Новая номеклатура"}]} />
+      <FlatList data={[{ name: "Номенклатура", title: "Новая номеклатура" }]} />
     </View>
 
   );
