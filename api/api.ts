@@ -1,8 +1,14 @@
-import axios  from "axios"
+import axios from "axios"
+import { API_URL, API_ANDROID } from '@env';
 
-try {
-  const response = await axios.get('/user?ID=12345');
-  console.log(response);
-} catch (error) {
-  console.error(error);
-}
+export const getCatalog = async () => {
+
+    const response = await axios.get(`${API_URL}/ut_api/hs/v1/catalog`);
+
+    if (response.status != 200) {
+        throw new Error('Не удалось загрузить товары');
+    }
+
+   
+    return response.data
+} 
