@@ -9,6 +9,15 @@ export const getCatalog = async () => {
         throw new Error('Не удалось загрузить товары');
     }
 
-   
     return response.data
-} 
+}
+
+export const createItem = async (data: { name: string, article: string }) => {
+    const response = await axios.post(`${API_URL}/ut_api/hs/v1/orders`, data)
+
+    if (response.status != 200) {
+        throw new Error('Не удалось загрузить товары');
+    }
+
+    return response.data
+}

@@ -5,9 +5,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get('/ut_api/hs/v1/catalog', (req, res) => {
-  return res.json(
-    [
+let catalog = [
       {
         "id": "a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c",
         "name": "Вентилятор напольный Vitek VT-1901",
@@ -33,16 +31,23 @@ app.get('/ut_api/hs/v1/catalog', (req, res) => {
         "name": "Пылесос Samsung VC18M21A0SB",
         "article": "VC18M21A0SB"
       }
-    ]
-  );
+  ]
+
+app.get('/ut_api/hs/v1/catalog', (req, res) => {
+  return res.json(catalog);
 });
 
 app.post('/ut_api/hs/v1/orders', (req, res) => {
-  console.log('Прилетел заказ из мобилки:', req.body);
+  const newItem = {
+    id: `item-${Date.now()}`,
+    name: req.body.name || "Без названия",
+    article: req.body.article || "NO-ART"
+  }
+
+  catalog.push(newItem);
   res.json({
     status: 'created',
-    orderId: '9999-0000-1111',
-    orderNumber: '0000-00124'
+    item: newItem
   });
 });
 
