@@ -1,97 +1,94 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 📱 Mobile TSD / B2B Order Terminal (Offline-First)
 
-# Getting Started
+Мобильный клиент для сбора B2B-заказов и складского учета (эмуляция терминала сбора данных), спроектированный для интеграции с **1С:Управление торговлей 11 (1С:УТ)** по протоколу REST API.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+> 🔗 **Бэкенд-часть проекта (Расширение для 1С:УТ 11):** https://github.com/Liptor/project_1c_server\
 
-## Step 1: Start Metro
+---
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## 🎯 Бизнес-задача и архитектурные решения
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+В складской и выездной торговле главная проблема мобильных клиентов — нестабильное интернет-соединение («слепые зоны» на складе, подвальные помещения). 
 
-```sh
-# Using npm
-npm start
+В проекте реализован паттерн **Offline-First с гарантией идемпотентности**:
+1. **Локальная очередь (Outbox Pattern):** При оформлении заказа данные мгновенно сохраняются в локальное хранилище устройства со статусом `pending` и уникальным ключом `localId` (`UUID v4`). Пользователь не ждет ответа сети.
+2. **Автоматическая и ручная синхронизация:** Фоновый воркер отслеживает состояние сети (`NetInfo`) и отправляет накопленные заказы при восстановлении связи. Также доступна принудительная отправка по кнопке.
+3. **Защита от дублей (Idempotency):** При обрыве связи в момент подтверждения заказа клиент может отправить запрос повторно. Серверная часть (как `mock-server`, так и расширение `1С:УТ`) проверяет `localId` и гарантирует, что в базе не создадутся дубли документов.
 
-# OR using Yarn
-yarn start
+---
+
+## 🏗 Архитектура взаимодействия
+
+```mermaid
+sequenceDiagram
+    participant User as Кладовщик / Менеджер
+    participant RN as React Native App (Local Queue)
+    participant API as 1C:УТ HTTP-Service / Mock Server
+
+    User->>RN: Нажимает "Отправить товар/заказ"
+    RN->>RN: Генерирует UUID (localId) и пишет в AsyncStorage (status: pending)
+    alt Сеть доступна
+        RN->>API: POST /v1/orders (JSON + localId)
+        API->>API: Проверка идемпотентности (поиск по localId)
+        API-->>RN: 201 Created / 200 OK (Уже загружено)
+        RN->>RN: Обновляет статус на synced
+    else Сеть отсутствует (Offline)
+        RN-->>User: Показывает статус "В очереди (ожидает сети)"
+        Note over RN,API: При появлении сети или нажатии кнопки "Синхронизировать"
+        RN->>API: Повторная отправка очереди (FIFO)
+    end
 ```
 
-## Step 2: Build and run your app
+---
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+## 🛠 Технологический стек
 
-### Android
+* **Mobile:** React Native, TypeScript
+* **Состояние и хранение:** AsyncStorage (персистентная очередь), NetInfo (мониторинг сети)
+* **Локальный стенд (Mock API):** Node.js, Express (полная эмуляция контрактов REST API 1С:УТ для автономной разработки и тестирования)
+* **Target Backend:** 1С:Предприятие 8.3 (УТ 11), HTTP-сервисы, JSON
 
-```sh
-# Using npm
-npm run android
+---
 
-# OR using Yarn
-yarn android
+## 🔌 API Контракты (Совместимы с расширением 1С:УТ)
+
+| Метод | Эндпоинт | Описание |
+| :--- | :--- | :--- |
+| `GET` | `/v1/catalog` | Получение актуального каталога номенклатуры и цен из 1С |
+| `POST` | `/v1/orders` | Передача сформированного заказа в 1С с проверкой `localId` на дубли |
+
+### Пример Payload (`POST /v1/orders`)
+```json
+{
+    {
+      "productId": "000000123",
+      "name": "Кабель ВВГнг 3х2.5",
+      "article": "KGN39VL316",
+    }
+}
 ```
 
-### iOS
+---
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+## 🚀 Быстрый запуск локально
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+Для локального тестирования без развернутого веб-сервера 1С в репозиторий включен `mock-server.js`, полностью повторяющий логику ответов и проверку идемпотентности 1С-расширения.
 
-```sh
-bundle install
+### 1. Запуск Mock-сервера
+```bash
+cd mock-server
+npm install
+node mock-server.js
+# Сервер запустится на http://localhost:3000
 ```
 
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
+### 2. Запуск мобильного приложения
+```bash
+cd mobile-app
+npm install
+npx react-native run-ios # или run-android
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+---
 
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+## 📸 Демонстрация работы (Offline -> Online)
