@@ -5,7 +5,7 @@
  * @format
  */
 import { useState, useEffect } from "react";
-import { StatusBar, Text, FlatList, StyleSheet, useColorScheme, View, ActivityIndicator } from 'react-native';
+import { StatusBar, Text, FlatList, StyleSheet, useColorScheme, View, ActivityIndicator, Pressable } from 'react-native';
 import {
   SafeAreaProvider
 } from 'react-native-safe-area-context';
@@ -42,7 +42,7 @@ function AppContent() {
   }, [])
 
   if (isLoading) {
-     return <ActivityIndicator size="large" />;
+    return <ActivityIndicator size="large" />;
   }
 
 
@@ -62,6 +62,15 @@ function AppContent() {
         }
       />
 
+      <View style={styles.buttonContainer}>
+        <Pressable style={styles.buttonStyle}>
+          <Text style={styles.textButtonStyle}>Обновить каталог</Text>
+        </Pressable>
+        <Pressable style={styles.buttonStyle}>
+          <Text style={styles.textButtonStyle}>Создать номенклатуру</Text>
+        </Pressable>
+      </View>
+
     </View>
 
   );
@@ -69,15 +78,20 @@ function AppContent() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1
   },
   containerTitle: {
     alignItems: "center",
     padding: 35,
   },
   listContent: {
-    gap: 13
+    gap: 13,
+    paddingLeft: 15,
+    paddingRight: 15
   },
   itemContainer: {
+    borderWidth: 2,
+    padding: 10,
     textAlign: 'center',
     alignItems: 'flex-start'
   },
@@ -87,6 +101,20 @@ const styles = StyleSheet.create({
   },
   text: {
     textAlign: 'left',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    padding: 25
+  },
+  buttonStyle: {
+    backgroundColor: '#2196F3',
+    padding: 20,
+    borderRadius: 8,
+  }, 
+  textButtonStyle: {
+    fontFamily: '',
   }
 });
 
