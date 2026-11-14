@@ -1,7 +1,8 @@
 import { useCallback, useState } from "react";
+import { API_URL } from '@env';
 import { Text, FlatList, StyleSheet, View, ActivityIndicator, Pressable } from 'react-native';
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { getCatalog } from "../api/api";
+import axios from "axios";
 
 
 export default function CatalogScreen() {
@@ -12,8 +13,12 @@ export default function CatalogScreen() {
     const onItemsCallback = useCallback(async () => {
         setLoading(true)
         try {
-            const result = await getCatalog();
-            setData(result);
+            const response = await axios.get(`${API_URL}/ut_api/hs/v1/catalog`);
+
+            if (response.status != 200) {
+                throw new Error('Не удалось загрузить товары');
+            }
+            setData(response.data);
         } catch (error) {
             console.error(error);
         } finally {
@@ -36,9 +41,11 @@ export default function CatalogScreen() {
                 data={data}
                 contentContainerStyle={styles.listContent}
                 renderItem={({ item }) =>
+
                     <View style={styles.itemContainer}>
-                        <Text style={styles.text}>{item.name}. {item.article}</Text>
+                        <Text style={styles.text}>{item.item.name}. {item.item.article}</Text>
                     </View>
+
                 }
             />}
             <View style={styles.buttonContainer}>
