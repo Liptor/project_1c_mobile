@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { API_URL } from '@env';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View, Switch } from "react-native";
 import uuid from 'react-native-uuid';
@@ -53,7 +53,7 @@ export default function ItemScreen() {
 
         setOfflineQueue([]);
         navigation.goBack()
-        
+
         Alert.alert('Синхронизировано', 'Все офлайн-заказы доставлены!');
         setIsSending(false);
     }
@@ -89,7 +89,7 @@ export default function ItemScreen() {
             <Pressable style={styles.buttonStyle} disabled={isSending || isOffline} onPress={() => {
                 handleSyncQueue()
             }}>
-                <Text style={styles.textButtonStyle}>{isSending ? 'Отправка' : `Отправить офлайн-заказы (${offlineQueue.length}`}</Text>
+                <Text style={styles.textButtonStyle}>{isSending ? 'Отправка' : `Отправить офлайн-заказы (${offlineQueue.length})`}</Text>
             </Pressable>
         </View>
         }
