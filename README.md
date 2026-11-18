@@ -76,17 +76,16 @@ sequenceDiagram
 
 ### 1. Запуск Mock-сервера
 ```bash
-cd mock-server
-npm install
+cd mock
 node mock-server.js
 # Сервер запустится на http://localhost:3000
 ```
 
 ### 2. Запуск мобильного приложения
 ```bash
-cd mobile-app
-npm install
-npx react-native run-ios # или run-android
+cd project_1c
+npm start
+npx run android # или run ios
 ```
 
 ---
